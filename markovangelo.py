@@ -23,6 +23,9 @@ def tokenize(w, h, pix):
     for y in range(h):
         for x in range(w):
             yield pix[x, y]
+    for x in range(w):
+        for y in range(h):
+            yield pix[x, y]
 
 
 if __name__ == '__main__':
