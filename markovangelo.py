@@ -1,4 +1,4 @@
-
+import collections
 import Image
 import vokram
 
@@ -11,12 +11,26 @@ def main():
     model = vokram.build_model(tokens, 10)
 
     new_pix = vokram.markov_chain(model, w * h)
-    new_pix_iter = iter(new_pix)
-    for y in range(h):
-        for x in range(w):
-            pix[x, y] = next(new_pix_iter)
-
+    flood_fill(w / 2, h / 2, w, h, pix, iter(new_pix))
     img.show()
+
+
+def flood_fill(w, h, pix, new_pix):
+    visited = set()
+    q = collections.deque()
+    q.append((0, 0))
+
+    while q:
+        x, y = q.popleft()
+        if (x, y) in visited or not 0 <= x < w or not 0 <= y < h:
+            continue
+
+        visited.add((x, y))
+        pix[x, y] = next(new_pix)
+
+        q.append((x + 1, y))
+        q.append((x + 1, y + 1))
+        q.append((x, y + 1))
 
 
 def tokenize(w, h, pix):
