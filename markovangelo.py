@@ -1,11 +1,14 @@
+#!/usr/bin/env python
+
 import collections
+import sys
 
 import Image
 import vokram
 
 
-def main():
-    img = Image.open('monalisa.gif')
+def main(path):
+    img = Image.open(path)
     w, h = img.size
     pix = img.load()
     tokens = tokenize(w, h, pix)
@@ -46,4 +49,4 @@ def tokenize(w, h, pix):
 
 
 if __name__ == '__main__':
-    main()
+    main(sys.argv[1])
