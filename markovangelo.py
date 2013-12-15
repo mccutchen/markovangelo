@@ -8,7 +8,7 @@ def main():
     w, h = img.size
     pix = img.load()
     tokens = tokenize(w, h, pix)
-    model = vokram.build_model(tokens, 4)
+    model = vokram.build_model(tokens, 10)
 
     new_pix = vokram.markov_chain(model, w * h)
     new_pix_iter = iter(new_pix)
