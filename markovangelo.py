@@ -1,18 +1,29 @@
 #!/usr/bin/env python
 
 import collections
+import itertools
 import sys
 
 import Image
 import vokram
 
 
-def main(path):
-    img = Image.open(path)
-    w, h = img.size
-    pix = img.load()
-    tokens = tokenize(w, h, pix)
+def main(paths):
+    imgs = map(Image.open, paths)
+
+    tokens_iters = []
+    for img in imgs:
+        w, h = img.size
+        pix = img.load()
+        tokens_iters.append(tokenize(w, h, pix))
+
+    tokens = itertools.chain.from_iterable(tokens_iters)
     model = vokram.build_model(tokens, 10)
+
+    img_count = len(imgs)
+    pixels = sum(img.size[0] * img.size[1] for img in imgs)
+    print('{} image(s), {} pixels'.format(img_count, pixels))
+    print('Model size: {}'.format(len(model)))
 
     new_pix = vokram.markov_chain(model, w * h)
     flood_fill(w, h, pix, iter(new_pix))
@@ -49,4 +60,4 @@ def tokenize(w, h, pix):
 
 
 if __name__ == '__main__':
-    main(sys.argv[1])
+    main(sys.argv[1:])
