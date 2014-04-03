@@ -25,8 +25,8 @@ def main(paths):
     print('{} image(s), {} pixels'.format(img_count, pixels))
     print('Model size: {}'.format(len(model)))
 
-    new_pix = vokram.markov_chain(model, w * h)
-    flood_fill(w, h, pix, iter(new_pix))
+    new_pix = vokram.markov_chain(model, w * h * 2)
+    fill(w, h, pix, iter(new_pix))
     img.show()
 
 
@@ -50,13 +50,30 @@ def flood_fill(w, h, pix, new_pix):
         q.extend(coords)
 
 
+def fill(w, h, pix, new_pix):
+    for y in range(0, h, 2):
+        for x in range(0, w, 2):
+            pix[x, y] = next(new_pix)
+            if 0 < x < w - 1 and 0 < y < h - 1:
+                pix[x - 1, y] = next(new_pix)
+                pix[x - 1, y - 1] = next(new_pix)
+                pix[x, y - 1] = next(new_pix)
+                pix[x + 1, y] = next(new_pix)
+                pix[x + 1, y + 1] = next(new_pix)
+                pix[x, y + 1] = next(new_pix)
+
+
 def tokenize(w, h, pix):
-    for y in range(h):
-        for x in range(w):
+    for y in range(0, h, 2):
+        for x in range(0, w, 2):
             yield pix[x, y]
-    for x in range(w):
-        for y in range(h):
-            yield pix[x, y]
+            if 0 < x < w - 1 and 0 < y < h - 1:
+                yield pix[x - 1, y]
+                yield pix[x - 1, y - 1]
+                yield pix[x, y - 1]
+                yield pix[x + 1, y]
+                yield pix[x + 1, y + 1]
+                yield pix[x, y + 1]
 
 
 if __name__ == '__main__':
