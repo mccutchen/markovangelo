@@ -9,7 +9,7 @@ import vokram
 
 
 def main(paths):
-    imgs = map(Image.open, paths)
+    imgs = map(prep_image, paths)
 
     tokens_iters = []
     for img in imgs:
@@ -28,6 +28,10 @@ def main(paths):
     new_pix = vokram.markov_chain(model, w * h * 2)
     fill(w, h, pix, iter(new_pix))
     img.show()
+
+
+def prep_image(path):
+    return Image.open(path).quantize(colors=64)
 
 
 def flood_fill(w, h, pix, new_pix):
