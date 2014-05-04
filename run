@@ -12,7 +12,6 @@ outdir="output"
 outfile="$outdir/$RANDOM.png"
 mkdir -p "$outdir"
 
-./markovangelo.py $1 > $outfile
-open $outfile
+./markovangelo.py -n 8 --show --width 800 --height 300 $* > $outfile
 
 echo "$outfile"

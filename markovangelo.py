@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import argparse
 import collections
 import itertools
 import logging
@@ -9,16 +10,15 @@ import Image
 import vokram
 
 
-def main(paths):
+def remix(paths, ngram_size, output_size):
     imgs = map(prep_image, paths)
+    out_w, out_h = output_size
 
     tokens_iters = []
     for img in imgs:
         w, h = img.size
-        pix = img.load()
-        tokens_iters.append(tokenize(w, h, pix))
+        tokens_iters.append(tokenize(w, h, img.load()))
 
-    ngram_size = 8
     sentinal = 0
     tokens = itertools.chain.from_iterable(tokens_iters)
     model = vokram.build_model(tokens, ngram_size, sentinal)
@@ -29,15 +29,14 @@ def main(paths):
     logging.info('%d image(s), %d pixels', img_count, pixels)
     logging.info('Model size: %d', len(model))
 
-    w = 500
-    h = 500
-    img = Image.new('RGB', (w, h))
+    img = Image.new('RGB', output_size)
     pix = img.load()
 
     new_pix = vokram.markov_chain(model, start_key=start_key)
-    fill(w, h, pix, new_pix)
-    img = img.crop((1, 1, w - 1, h - 1))
-    img.save(sys.stdout, 'png')
+    fill(out_w, out_h, pix, new_pix)
+    img = img.crop((1, 1, out_w - 1, out_h - 1))
+    img.save(outfile, 'png')
+    return 0
 
 
 def prep_image(path):
@@ -98,5 +97,27 @@ def neighbors(x, y):
 
 
 if __name__ == '__main__':
+    arg_parser = argparse.ArgumentParser(
+        prog='markovangelo',
+        description='Uses Markov chains to remix images.')
+    arg_parser.add_argument(
+        '-n', '--ngram-size', type=int, default=4)
+    arg_parser.add_argument(
+        '--width', type=int, required=True,
+        help='Output image width')
+    arg_parser.add_argument(
+        '--height', type=int, required=True,
+        help='Output image height')
+    arg_parser.add_argument(
+        '--show', action='store_true', help='Open result in image viewer')
+    arg_parser.add_argument(
+        'source_file', nargs='+', help='Input image(s)')
+
+    args = arg_parser.parse_args()
+
     logging.getLogger().setLevel(logging.INFO)
-    main(sys.argv[1:])
+
+    img = remix(args.source_file, args.ngram_size, (args.width, args.height))
+    if args.show:
+        img.show()
+    img.save(sys.stdout, 'png')
