@@ -18,21 +18,25 @@ def main(paths):
         pix = img.load()
         tokens_iters.append(tokenize(w, h, pix))
 
+    ngram_size = 8
+    sentinal = 0
     tokens = itertools.chain.from_iterable(tokens_iters)
-    model, start_key = vokram.build_model(tokens, 32)
+    model = vokram.build_model(tokens, ngram_size, sentinal)
+    start_key = (sentinal,) * ngram_size
 
     img_count = len(imgs)
     pixels = sum(img.size[0] * img.size[1] for img in imgs)
     logging.info('%d image(s), %d pixels', img_count, pixels)
     logging.info('Model size: %d', len(model))
 
-    new_pix = vokram.markov_chain(model, w * h * 2, start_key=start_key)
-    fill(w, h, pix, iter(new_pix))
+    new_pix = vokram.markov_chain(model, start_key=start_key)
+    fill(w, h, pix, new_pix)
+    img = img.crop((1, 1, w - 1, h - 1))
     img.save(sys.stdout, 'png')
 
 
 def prep_image(path):
-    return Image.open(path).quantize(colors=64)
+    return Image.open(path).quantize(colors=256)
 
 
 def flood_fill(w, h, pix, new_pix):
