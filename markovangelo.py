@@ -6,7 +6,7 @@ import itertools
 import logging
 import sys
 
-import Image
+from PIL import Image
 import vokram
 
 
