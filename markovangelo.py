@@ -60,29 +60,36 @@ def flood_fill(w, h, pix, new_pix):
 
 
 def fill(w, h, pix, new_pix):
-    for y in range(0, h, 2):
-        for x in range(0, w, 2):
+    for y in range(1, h - 1, 2):
+        for x in range(1, w - 1, 2):
             pix[x, y] = next(new_pix)
-            if 0 < x < w - 1 and 0 < y < h - 1:
-                pix[x - 1, y] = next(new_pix)
-                pix[x - 1, y - 1] = next(new_pix)
-                pix[x, y - 1] = next(new_pix)
-                pix[x + 1, y] = next(new_pix)
-                pix[x + 1, y + 1] = next(new_pix)
-                pix[x, y + 1] = next(new_pix)
+            for nx, ny in neighbors(x, y):
+                pix[nx, ny] = next(new_pix)
 
 
 def tokenize(w, h, pix):
-    for y in range(0, h, 2):
-        for x in range(0, w, 2):
-            yield pix[x, y]
-            if 0 < x < w - 1 and 0 < y < h - 1:
-                yield pix[x - 1, y]
-                yield pix[x - 1, y - 1]
-                yield pix[x, y - 1]
-                yield pix[x + 1, y]
-                yield pix[x + 1, y + 1]
-                yield pix[x, y + 1]
+    """We tokenize an image such that there is a token for each pixel
+    and each of its neighboring pixels, so that each neighbor is
+    equally likely to occur after any given pixel.
+
+    (And we ignore the outermost pixels for simplicity's sake.)
+    """
+    for y in range(1, h - 1):
+        for x in range(1, w - 1):
+            for nx, ny in neighbors(x, y):
+                yield pix[x, y]
+                yield pix[nx, ny]
+
+
+def neighbors(x, y):
+    return [
+        (x - 1, y),
+        (x - 1, y - 1),
+        (x, y - 1),
+        (x + 1, y),
+        (x + 1, y + 1),
+        (x, y + 1),
+    ]
 
 
 if __name__ == '__main__':
