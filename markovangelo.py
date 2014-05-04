@@ -2,6 +2,7 @@
 
 import collections
 import itertools
+import logging
 import sys
 
 import Image
@@ -22,12 +23,12 @@ def main(paths):
 
     img_count = len(imgs)
     pixels = sum(img.size[0] * img.size[1] for img in imgs)
-    print('{} image(s), {} pixels'.format(img_count, pixels))
-    print('Model size: {}'.format(len(model)))
+    logging.info('%d image(s), %d pixels', img_count, pixels)
+    logging.info('Model size: %d', len(model))
 
     new_pix = vokram.markov_chain(model, w * h * 2, start_key=start_key)
     fill(w, h, pix, iter(new_pix))
-    img.show()
+    img.save(sys.stdout, 'png')
 
 
 def prep_image(path):
@@ -81,4 +82,5 @@ def tokenize(w, h, pix):
 
 
 if __name__ == '__main__':
+    logging.getLogger().setLevel(logging.INFO)
     main(sys.argv[1:])
