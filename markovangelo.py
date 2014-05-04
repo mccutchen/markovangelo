@@ -29,6 +29,11 @@ def main(paths):
     logging.info('%d image(s), %d pixels', img_count, pixels)
     logging.info('Model size: %d', len(model))
 
+    w = 500
+    h = 500
+    img = Image.new('RGB', (w, h))
+    pix = img.load()
+
     new_pix = vokram.markov_chain(model, start_key=start_key)
     fill(w, h, pix, new_pix)
     img = img.crop((1, 1, w - 1, h - 1))
@@ -36,7 +41,7 @@ def main(paths):
 
 
 def prep_image(path):
-    return Image.open(path).quantize(colors=256)
+    return Image.open(path).quantize(colors=256).convert('RGB')
 
 
 def flood_fill(w, h, pix, new_pix):
