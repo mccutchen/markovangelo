@@ -18,14 +18,14 @@ def main(paths):
         tokens_iters.append(tokenize(w, h, pix))
 
     tokens = itertools.chain.from_iterable(tokens_iters)
-    model = vokram.build_model(tokens, 10)
+    model, start_key = vokram.build_model(tokens, 32)
 
     img_count = len(imgs)
     pixels = sum(img.size[0] * img.size[1] for img in imgs)
     print('{} image(s), {} pixels'.format(img_count, pixels))
     print('Model size: {}'.format(len(model)))
 
-    new_pix = vokram.markov_chain(model, w * h * 2)
+    new_pix = vokram.markov_chain(model, w * h * 2, start_key=start_key)
     fill(w, h, pix, iter(new_pix))
     img.show()
 
