@@ -1,10 +1,16 @@
 #!/usr/bin/env python
 
+# Example usage:
+#
+# ./markovangelo.py -o output --show --width=800 --height=300 --ngram-size=8 input/monalisa.gif  # noqa
+
 import argparse
 import collections
 import itertools
 import logging
+import os
 import sys
+import time
 
 from PIL import Image
 import vokram
@@ -118,6 +124,9 @@ if __name__ == '__main__':
         '--height', type=int, required=True,
         help='Output image height')
     arg_parser.add_argument(
+        '-o', '--output-dir',
+        help='Optional output dir. If given, a path will be chosen for you.')
+    arg_parser.add_argument(
         '--show', action='store_true', help='Open result in image viewer')
     arg_parser.add_argument(
         'source_file', nargs='+', help='Input image(s)')
@@ -129,4 +138,13 @@ if __name__ == '__main__':
     img = remix(args.source_file, args.ngram_size, (args.width, args.height))
     if args.show:
         img.show()
-    img.save(sys.stdout, 'png')
+    if args.output_dir:
+        if not os.path.isdir(args.output_dir):
+            os.makedirs(args.output_dir)
+        filename = '%d.png' % time.time()
+        outpath = os.path.join(args.output_dir, filename)
+        logging.info(os.path.abspath(outpath))
+        outfile = open(outpath, 'wb')
+    else:
+        outfile = sys.stdout
+    img.save(outfile, 'png')
