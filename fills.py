@@ -103,6 +103,30 @@ def radial_fill(w, h, target_pix, pix_stream):
         target_pix[x, y] = next(pix_stream)
 
 
+def voronoi_fill(w, h, target_pix, pix_stream):
+    centroid_count = int(w * h * 0.00025)
+    centroids = [(random.randint(0, w), random.randint(0, h))
+                 for _ in xrange(centroid_count)]
+    centroid_map = dict(enumerate(centroids))
+
+    def sort((x, y), hypot=math.hypot):
+        dists = ((key, hypot(x-cx, y-cy))
+                 for key, (cx, cy) in centroid_map.iteritems())
+        key, _ = min(dists, key=lambda x: x[1])
+        return key
+
+    all_coords = precalculate_coords((w, h), sort=sort)
+    grouped_coords = itertools.groupby(all_coords, sort)
+    for centroid_key, coords in grouped_coords:
+        if centroid_key % 2 == 0:
+            key = lambda (x, y): y - x
+        else:
+            key = lambda (x, y): x * y
+        coords = sorted(coords, key=key)
+        for x, y in coords:
+            target_pix[x, y] = next(pix_stream)
+
+
 def precalculate_coords(start, end=None, step=1, sort=None):
     if end:
         x0, y0 = start
