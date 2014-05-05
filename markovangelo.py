@@ -10,6 +10,7 @@ import itertools
 import logging
 import os
 import sys
+import random
 import time
 
 from PIL import Image
@@ -49,7 +50,7 @@ def prep_image(path):
 
 
 def fill(w, h, target_pix, pix_stream):
-    stride_fill(w, h, target_pix, pix_stream)
+    random_stride_fill(w, h, target_pix, pix_stream)
 
 
 def simple_fill(w, h, target_pix, pix_stream):
@@ -72,6 +73,18 @@ def stride_fill(w, h, target_pix, pix_stream):
         for x in range(0, w):
             for y in range(row_y, min(row_y + stride, h)):
                 target_pix[x, y] = next(pix_stream)
+
+
+def random_stride_fill(w, h, target_pix, pix_stream):
+    base_stride = int(h * .05)
+    stride_range = int(base_stride * .33)
+    row_y = 0
+    while row_y < h:
+        stride = base_stride + random.randint(-stride_range, stride_range)
+        for x in range(0, w):
+            for y in range(row_y, min(row_y + stride, h)):
+                target_pix[x, y] = next(pix_stream)
+        row_y += stride
 
 
 def flood_fill(w, h, target_pix, pix_stream):
