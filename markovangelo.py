@@ -30,20 +30,36 @@ def remix(paths, ngram_size, output_size):
     logging.info('Model size: %d', len(model))
 
     img = Image.new('RGB', output_size)
-    pix = img.load()
+    target_pix = img.load()
 
-    new_pix = vokram.markov_chain(model, start_key=start_key)
-    fill(out_w, out_h, pix, new_pix)
-    img = img.crop((1, 1, out_w - 1, out_h - 1))
-    img.save(outfile, 'png')
-    return 0
+    pix_stream = vokram.markov_chain(model, start_key=start_key)
+    fill(out_w, out_h, target_pix, pix_stream)
+    return img.crop((1, 1, out_w - 1, out_h - 1))
 
 
 def prep_image(path):
     return Image.open(path).quantize(colors=256).convert('RGB')
 
 
-def flood_fill(w, h, pix, new_pix):
+def fill(w, h, target_pix, pix_stream):
+    simple_fill(w, h, target_pix, pix_stream)
+
+
+def simple_fill(w, h, target_pix, pix_stream):
+    for y in range(0, h):
+        for x in range(0, w):
+            target_pix[x, y] = next(pix_stream)
+
+
+def less_simple_fill(w, h, target_pix, pix_stream):
+    for y in range(2, h - 2, 2):
+        for x in range(2, w - 2, 2):
+            target_pix[x, y] = next(pix_stream)
+            for nx, ny in neighbors(x, y):
+                target_pix[nx, ny] = next(pix_stream)
+
+
+def flood_fill(w, h, target_pix, pix_stream):
     visited = set()
     q = collections.deque()
     q.append((0, 0))
@@ -54,21 +70,13 @@ def flood_fill(w, h, pix, new_pix):
             continue
 
         visited.add((x, y))
-        pix[x, y] = next(new_pix)
+        target_pix[x, y] = next(pix_stream)
 
         coords = [
             (x + 1, y),
             (x, y + 1)
         ]
         q.extend(coords)
-
-
-def fill(w, h, pix, new_pix):
-    for y in range(1, h - 1, 2):
-        for x in range(1, w - 1, 2):
-            pix[x, y] = next(new_pix)
-            for nx, ny in neighbors(x, y):
-                pix[nx, ny] = next(new_pix)
 
 
 def tokenize(w, h, pix):
