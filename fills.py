@@ -60,25 +60,42 @@ def flood_fill(w, h, target_pix, pix_stream):
         q.extend(coords)
 
 
-def patchwork_fill(w, h, target_pix, pix_stream):
+def patchwork_fill(w, h, target_pix, pix_stream, draw):
     # This fill breaks the images into square patches and fills each patch
     # individually.
     patch_size = int(max(w, h) * 0.025)
-    patch_coords = precalculate_coords((w, h), step=patch_size)
-    patch_coords = sorted(patch_coords, reverse=True)
+    patch_size = 50
 
     cx = w / 2
     cy = h / 2
     hypot = math.hypot
-    pixel_sort = lambda (x, y): hypot(x - cx, y - cy)
+    hypot_sort = lambda (x, y): hypot(x - cx, y - cy)
 
+    def patch_sort((x, y)):
+        corners = itertools.product((x, x + patch_size), (y, y + patch_size))
+        return min(itertools.imap(hypot_sort, corners)), x, y
+
+    patch_coords = precalculate_coords(
+        (w, h), step=patch_size, sort=patch_sort)
+
+    import logging
     for patch_x, patch_y in patch_coords:
+        logging.warn('Patch:\t%d, %d', patch_x, patch_y)
         start = (patch_x, patch_y)
         end = (min(patch_x + patch_size, w),
                min(patch_y + patch_size, h))
-        patch_pixels = precalculate_coords(start, end, sort=pixel_sort)
+        patch_pixels = precalculate_coords(start, end, sort=hypot_sort)
         for x, y in patch_pixels:
             target_pix[x, y] = next(pix_stream)
+
+    last_coord = None
+    p_off = patch_size / 2
+    offset = lambda (x, y): (x + p_off, y + p_off)
+    for i, coord in enumerate(patch_coords):
+        draw.text(coord, str(i), fill='red')
+        if last_coord and i < 10:
+            draw.line(offset(last_coord) + offset(coord), fill='pink')
+        last_coord = coord
 
 
 def circular_fill(w, h, target_pix, pix_stream):

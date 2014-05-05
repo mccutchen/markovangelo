@@ -9,10 +9,9 @@ import itertools
 import logging
 import os
 import sys
-import random
 import time
 
-from PIL import Image
+from PIL import Image, ImageDraw
 import vokram
 
 import fills
@@ -43,7 +42,7 @@ def remix(paths, ngram_size, output_size):
     target_pix = img.load()
 
     pix_stream = vokram.markov_chain(model, start_key=start_key)
-    fill(out_w, out_h, target_pix, pix_stream)
+    fill(out_w, out_h, target_pix, pix_stream, ImageDraw.Draw(img))
     return img.crop((1, 1, out_w - 1, out_h - 1))
 
 
@@ -51,8 +50,8 @@ def prep_image(path):
     return Image.open(path).quantize(colors=256).convert('RGB')
 
 
-def fill(w, h, target_pix, pix_stream):
-    fills.patchwork_fill(w, h, target_pix, pix_stream)
+def fill(w, h, target_pix, pix_stream, draw):
+    fills.patchwork_fill(w, h, target_pix, pix_stream, draw)
 
 
 def tokenize(w, h, pix):
