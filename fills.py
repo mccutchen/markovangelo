@@ -67,7 +67,11 @@ def patchwork_fill(w, h, target_pix, pix_stream):
     patch_coords = precalculate_coords((w, h), step=patch_size)
     patch_coords = sorted(patch_coords, reverse=True)
 
-    pixel_sort = lambda (x, y): (y * x)
+    cx = w / 2
+    cy = h / 2
+    hypot = math.hypot
+    pixel_sort = lambda (x, y): hypot(x - cx, y - cy)
+
     for patch_x, patch_y in patch_coords:
         start = (patch_x, patch_y)
         end = (min(patch_x + patch_size, w),
