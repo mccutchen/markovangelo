@@ -1,5 +1,6 @@
 import collections
 import itertools
+import logging
 import math
 import random
 
@@ -60,27 +61,55 @@ def flood_fill(w, h, target_pix, pix_stream):
         q.extend(coords)
 
 
+def patch_walk(w, h, patch_size):
+    visited = set()
+    heading = (1, 0)
+    pos = (0, 0)
+
+    def invalid_pos((x, y)):
+        return (x, y) in visited or \
+            x < 0 or x + patch_size > w or \
+            y < 0 or y + patch_size > h
+
+    def update_pos(pos, heading):
+        x, y = pos
+        dx, dy = heading
+        next = (x + (patch_size * dx), y + (patch_size * dy))
+        return (x, y), next
+
+    turns = {
+        (1, 0): (0, 1),
+        (0, 1): (-1, 0),
+        (-1, 0): (0, -1),
+        (0, -1): (1, 0),
+    }
+
+    while True:
+        yield pos
+        visited.add(pos)
+        last_pos, pos = update_pos(pos, heading)
+        if invalid_pos(pos):
+            logging.warn(' ! new direction: %r %r', pos, heading)
+            heading = turns[heading]
+            _, pos = update_pos(last_pos, heading)
+            if invalid_pos(pos):
+                logging.warn(' !! no valid path? %r %r', pos, heading)
+                break
+
+
 def patchwork_fill(w, h, target_pix, pix_stream, draw):
     # This fill breaks the images into square patches and fills each patch
     # individually.
     patch_size = int(max(w, h) * 0.025)
-    patch_size = 50
 
-    cx = w / 2
+    cx = int(w * .66)
     cy = h / 2
     hypot = math.hypot
     hypot_sort = lambda (x, y): hypot(x - cx, y - cy)
 
-    def patch_sort((x, y)):
-        corners = itertools.product((x, x + patch_size), (y, y + patch_size))
-        return min(itertools.imap(hypot_sort, corners)), x, y
+    patch_coords = list(patch_walk(w, h, patch_size))
 
-    patch_coords = precalculate_coords(
-        (w, h), step=patch_size, sort=patch_sort)
-
-    import logging
     for patch_x, patch_y in patch_coords:
-        logging.warn('Patch:\t%d, %d', patch_x, patch_y)
         start = (patch_x, patch_y)
         end = (min(patch_x + patch_size, w),
                min(patch_y + patch_size, h))
@@ -92,8 +121,7 @@ def patchwork_fill(w, h, target_pix, pix_stream, draw):
     p_off = patch_size / 2
     offset = lambda (x, y): (x + p_off, y + p_off)
     for i, coord in enumerate(patch_coords):
-        draw.text(coord, str(i), fill='red')
-        if last_coord and i < 10:
+        if last_coord:
             draw.line(offset(last_coord) + offset(coord), fill='pink')
         last_coord = coord
 
