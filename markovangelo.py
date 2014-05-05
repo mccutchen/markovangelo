@@ -49,7 +49,7 @@ def prep_image(path):
 
 
 def fill(w, h, target_pix, pix_stream):
-    simple_fill(w, h, target_pix, pix_stream)
+    stride_fill(w, h, target_pix, pix_stream)
 
 
 def simple_fill(w, h, target_pix, pix_stream):
@@ -64,6 +64,14 @@ def less_simple_fill(w, h, target_pix, pix_stream):
             target_pix[x, y] = next(pix_stream)
             for nx, ny in neighbors(x, y):
                 target_pix[nx, ny] = next(pix_stream)
+
+
+def stride_fill(w, h, target_pix, pix_stream):
+    stride = int(h * .1)
+    for row_y in range(0, h, stride):
+        for x in range(0, w):
+            for y in range(row_y, min(row_y + stride, h)):
+                target_pix[x, y] = next(pix_stream)
 
 
 def flood_fill(w, h, target_pix, pix_stream):
