@@ -50,7 +50,7 @@ def prep_image(path):
 
 
 def fill(w, h, target_pix, pix_stream):
-    random_stride_fill(w, h, target_pix, pix_stream)
+    patchwork_fill(w, h, target_pix, pix_stream)
 
 
 def simple_fill(w, h, target_pix, pix_stream):
@@ -105,6 +105,24 @@ def flood_fill(w, h, target_pix, pix_stream):
             (x, y + 1)
         ]
         q.extend(coords)
+
+
+def patchwork_fill(w, h, target_pix, pix_stream):
+    # This fill breaks the images into square patches and fills each patch
+    # individually.
+    patch_size = int(max(w, h) * 0.025)
+    patch_x_range = xrange(0, w, patch_size)
+    patch_y_range = xrange(0, h, patch_size)
+    patch_coords = list(itertools.product(patch_y_range, patch_x_range))
+    patch_coords = sorted(patch_coords, reverse=True)
+
+    for patch_y, patch_x in patch_coords:
+        x_range = xrange(patch_x, min(patch_x + patch_size, w))
+        y_range = xrange(patch_y, min(patch_y + patch_size, h))
+        patch_pixels = list(itertools.product(x_range, y_range))
+        patch_pixels = sorted(patch_pixels, key=lambda (x, y): (y * x))
+        for x, y in patch_pixels:
+            target_pix[x, y] = next(pix_stream)
 
 
 def tokenize(w, h, pix):
