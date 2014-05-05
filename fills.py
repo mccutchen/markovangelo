@@ -1,5 +1,6 @@
 import collections
 import itertools
+import math
 import random
 
 import utils
@@ -75,3 +76,19 @@ def patchwork_fill(w, h, target_pix, pix_stream):
         patch_pixels = sorted(patch_pixels, key=lambda (x, y): (y * x))
         for x, y in patch_pixels:
             target_pix[x, y] = next(pix_stream)
+
+
+def circular_fill(w, h, target_pix, pix_stream):
+    # This fill precalculates the list of (x, y) coordinates in the target
+    # image and sorts them based on their distance from the center before
+    # filling based on that order.
+    x_range = xrange(0, w)
+    y_range = xrange(0, h)
+    coords = itertools.product(x_range, y_range)
+
+    cx = w / 2
+    cy = h / 2
+    hypot = math.hypot
+    coords = sorted(coords, key=lambda (x, y): hypot(x - cx, y - cy))
+    for x, y in coords:
+        target_pix[x, y] = next(pix_stream)

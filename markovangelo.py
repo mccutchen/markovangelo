@@ -52,7 +52,7 @@ def prep_image(path):
 
 
 def fill(w, h, target_pix, pix_stream):
-    fills.patchwork_fill(w, h, target_pix, pix_stream)
+    fills.circular_fill(w, h, target_pix, pix_stream)
 
 
 def tokenize(w, h, pix):
