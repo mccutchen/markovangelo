@@ -22,7 +22,8 @@ def remix(paths, ngram_size, output_size):
     sentinal = 0
     tokens = itertools.chain.from_iterable(tokens_iters)
     model = vokram.build_model(tokens, ngram_size, sentinal)
-    start_key = (sentinal,) * ngram_size
+    # start_key = (sentinal,) * ngram_size
+    start_key = None
 
     img_count = len(imgs)
     pixels = sum(img.size[0] * img.size[1] for img in imgs)
