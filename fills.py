@@ -74,8 +74,8 @@ def patch_walk(w, h, patch_size):
     def update_pos(pos, heading):
         x, y = pos
         dx, dy = heading
-        next = (x + (patch_size * dx), y + (patch_size * dy))
-        return (x, y), next
+        next_pos = (x + (patch_size * dx), y + (patch_size * dy))
+        return (x, y), next_pos
 
     turns = {
         (1, 0): (0, 1),
