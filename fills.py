@@ -97,7 +97,7 @@ def patch_walk(w, h, patch_size):
                 break
 
 
-def patchwork_fill(w, h, target_pix, pix_stream, draw):
+def patchwork_fill(w, h, target_pix, pix_stream, draw=None):
     # This fill breaks the images into square patches and fills each patch
     # individually.
     patch_size = int(max(w, h) * 0.025)
@@ -117,13 +117,14 @@ def patchwork_fill(w, h, target_pix, pix_stream, draw):
         for x, y in patch_pixels:
             target_pix[x, y] = next(pix_stream)
 
-    last_coord = None
-    p_off = patch_size / 2
-    offset = lambda (x, y): (x + p_off, y + p_off)
-    for i, coord in enumerate(patch_coords):
-        if last_coord:
-            draw.line(offset(last_coord) + offset(coord), fill='pink')
-        last_coord = coord
+    if draw:
+        last_coord = None
+        p_off = patch_size / 2
+        offset = lambda (x, y): (x + p_off, y + p_off)
+        for i, coord in enumerate(patch_coords):
+            if last_coord:
+                draw.line(offset(last_coord) + offset(coord), fill='pink')
+            last_coord = coord
 
 
 def circular_fill(w, h, target_pix, pix_stream):
