@@ -51,7 +51,7 @@ def prep_image(path):
 
 
 def fill(w, h, target_pix, pix_stream, draw):
-    fills.patchwork_fill(w, h, target_pix, pix_stream, draw)
+    fills.random_walk_fill(w, h, target_pix, pix_stream)
 
 
 def tokenize(w, h, pix):

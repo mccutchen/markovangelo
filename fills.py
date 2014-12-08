@@ -179,6 +179,47 @@ def voronoi_fill(w, h, target_pix, pix_stream):
             target_pix[x, y] = next(pix_stream)
 
 
+def random_walk_fill(w, h, target_pix, pix_stream):
+    cx = int(w * .33)
+    cy = h / 2
+
+    visited = set()
+    q = [(cx, cy)]
+
+    def random_sort():
+        x_factor = 1 if random.random() < 0.5 else -1
+        y_factor = 1 if random.random() < 0.5 else -1
+        sort_by_x = random.random() < 0.5
+
+        def sort_func((x, y)):
+            x *= x_factor
+            y *= y_factor
+            return (x, y) if sort_by_x else (y, x)
+
+        return sort_func
+
+    sort_func = random_sort()
+    sort_mutation_chance = 0.05
+
+    def is_valid_coord((x, y)):
+        return (x, y) not in visited and 0 <= x < w and 0 <= y < h
+
+    while q:
+        x, y = q.pop()
+        target_pix[x, y] = next(pix_stream)
+        visited.add((x, y))
+
+        q.extend(
+            sorted(
+                filter(is_valid_coord, utils.neighbors(x, y)),
+                key=sort_func))
+
+        if random.random() < sort_mutation_chance:
+            # print 'changing sort func! (q: %s; v: %s; t: %s)' % (
+            #     len(q), len(visited), (w * h))
+            sort_func = random_sort()
+
+
 def precalculate_coords(start, end=None, step=1, sort=None):
     if end:
         x0, y0 = start
