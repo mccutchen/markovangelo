@@ -100,13 +100,14 @@ def patch_walk(w, h, patch_size):
 def patchwork_fill(w, h, target_pix, pix_stream, draw=None):
     # This fill breaks the images into square patches and fills each patch
     # individually.
-    patch_size = int(max(w, h) * 0.025)
+    patch_size = int(max(w, h) * 0.0125)
 
     cx = int(w * .66)
     cy = h / 2
     hypot = math.hypot
-    hypot_sort = lambda (x, y): hypot(x - cx, y - cy)
+    hypot_sort = lambda (x, y): hypot(x - cx, y - cy),
 
+    # patch_coords = precalculate_coords((w, h), step=patch_size)
     patch_coords = list(patch_walk(w, h, patch_size))
 
     for patch_x, patch_y in patch_coords:
