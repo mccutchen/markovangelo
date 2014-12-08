@@ -132,13 +132,14 @@ def circular_fill(w, h, target_pix, pix_stream):
     # This fill precalculates the list of (x, y) coordinates in the target
     # image and sorts them based on their distance from the center before
     # filling based on that order.
-    cx = w / 2
+    cx = int(w * .66)
     cy = h / 2
     hypot = math.hypot
     sort = lambda (x, y): hypot(x - cx, y - cy)
     coords = precalculate_coords((w, h), sort=sort)
-    for x, y in coords:
-        target_pix[x, y] = next(pix_stream)
+    pixels = reversed(sorted(next(pix_stream) for _ in xrange(w * h)))
+    for (x, y), c in itertools.izip(coords, pixels):
+        target_pix[x, y] = c
 
 
 def radial_fill(w, h, target_pix, pix_stream):
