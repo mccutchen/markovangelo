@@ -179,7 +179,12 @@ def voronoi_fill(w, h, target_pix, pix_stream):
             target_pix[x, y] = next(pix_stream)
 
 
-def random_walk_fill(w, h, target_pix, pix_stream):
+def random_walk_fill(actual_w, actual_h, target_pix, pix_stream, draw):
+    scale = 0.1
+    w = int(actual_w * scale)
+    h = int(actual_h * scale)
+    pixel_radius = int(math.ceil(1 / scale) * 0.5)
+
     cx = int(w * .33)
     cy = h / 2
 
@@ -199,14 +204,21 @@ def random_walk_fill(w, h, target_pix, pix_stream):
         return sort_func
 
     sort_func = random_sort()
-    sort_mutation_chance = 0.3
+    sort_mutation_chance = 0.6
 
     def is_valid_coord((x, y)):
         return (x, y) not in visited and 0 <= x < w and 0 <= y < h
 
     while q:
         x, y = q.pop()
-        target_pix[x, y] = next(pix_stream)
+        sx, sy = x / scale, y / scale
+
+        bounding_box = [
+            (sx - pixel_radius, sy - pixel_radius),
+            (sx + pixel_radius, sy + pixel_radius)
+        ]
+        draw.ellipse(bounding_box, fill=next(pix_stream))
+
         visited.add((x, y))
 
         q.extend(
