@@ -204,7 +204,7 @@ def random_walk_fill(actual_w, actual_h, target_pix, pix_stream, draw):
         return sort_func
 
     sort_func = random_sort()
-    sort_mutation_chance = 0.6
+    sort_mutation_chance = 0.75
 
     def is_valid_coord((x, y)):
         return (x, y) not in visited and 0 <= x < w and 0 <= y < h
